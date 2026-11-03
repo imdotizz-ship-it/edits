@@ -1,0 +1,5 @@
+var/
+*.sqlite3
+*.har
+.env
+.pytest_cache/

@@ -1,0 +1,6 @@
+{
+  "schema": "blpanel.dogtag-annotations/1",
+  "description": "Curated, user-maintained notes per dogtag ID. Adds category / unlock_source / requirements / notes. NEVER changes ownership status. Fill only with IDs observed in your own captures; do not invent entries.",
+  "example_entry": {"id": "<dogtag id exactly as returned by Battlelog>", "category": "Developer / Exclusive", "unlock_source": "Granted by DICE/EA staff", "requirements": "Not obtainable by players", "notes": "source of this information (link)"},
+  "entries": []
+}

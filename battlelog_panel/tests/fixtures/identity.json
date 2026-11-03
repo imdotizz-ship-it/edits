@@ -1,0 +1,9 @@
+{"_fixture_note": "SYNTHETIC test fixture - not real data",
+ "template": "profile.common.index",
+ "context": {
+  "profileCommon": {"user": {"userId": "900000000000000001", "username": "FixtureUser"}},
+  "soldiersBox": [
+   {"persona": {"personaId": "111111111", "personaName": "FixtureSoldier", "namespace": "cem_ea_id"}, "platform": 1, "game": 2048},
+   {"persona": {"personaId": "222222222", "personaName": "FixtureSoldierPS4", "namespace": "ps4"}, "platform": 32, "game": 2048}
+  ]
+ }}
