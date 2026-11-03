@@ -1,0 +1,6 @@
+{"_fixture_note": "SYNTHETIC test fixture - not real data",
+ "type": "success", "message": "OK",
+ "data": {"generalStats": {
+   "kills": 1000, "deaths": 500, "headshots": 250, "shotsFired": 20000, "shotsHit": 3100,
+   "numRounds": 100, "longestHeadshot": 512.5, "revives": 30, "heals": 40, "resupplies": 50, "repairs": 5
+ }}}

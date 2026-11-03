@@ -1,0 +1,139 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Battlelog Profile Control Panel</title>
+<link rel="stylesheet" href="/static/app.css">
+</head>
+<body>
+<header class="topbar">
+  <div class="brand"><span class="logo" aria-hidden="true">▣</span><div><strong>Profile Control Panel</strong><small>Battlelog · leitura, laboratório e sincronização</small></div></div>
+  <div class="topbar-flags" id="flags"></div>
+  <div class="topbar-user"><select id="profileSelect" aria-label="Perfil"></select><button class="ghost" id="logoutBtn">Sair</button></div>
+</header>
+
+<nav class="tabs" role="tablist" id="tabs">
+  <button role="tab" data-tab="connection" aria-selected="true">Conexão</button>
+  <button role="tab" data-tab="stats">Estatísticas</button>
+  <button role="tab" data-tab="dogtags">Dogtags</button>
+  <button role="tab" data-tab="lab">Modification Lab</button>
+  <button role="tab" data-tab="sync">Sincronização</button>
+  <button role="tab" data-tab="audit">Auditoria</button>
+  <button role="tab" data-tab="feasibility">Viabilidade</button>
+</nav>
+
+<main>
+  <!-- CONNECTION -->
+  <section id="tab-connection" class="tab active">
+    <div class="grid two">
+      <div class="card">
+        <h2>Perfil conectado</h2>
+        <div id="connectionCard" class="kv"></div>
+      </div>
+      <div class="card">
+        <h2>Conectar a um perfil</h2>
+        <p class="muted">Consulta anônima (GET) às páginas públicas do Battlelog. Nenhuma senha, cookie ou token é pedido ou enviado.</p>
+        <form id="resolveForm" class="row">
+          <input id="resolveUser" placeholder="Usuário Battlelog (ex.: seu nome EA)" required maxlength="32">
+          <button>Buscar soldados</button>
+        </form>
+        <div id="soldiers"></div>
+        <details>
+          <summary>Já sei o persona ID</summary>
+          <form id="directForm" class="row wrap">
+            <input id="directPid" placeholder="Persona ID" inputmode="numeric" pattern="\d+" required>
+            <input id="directName" placeholder="Nome do soldado (opcional)">
+            <select id="directPlatform"></select>
+            <button>Sincronizar</button>
+          </form>
+        </details>
+        <h3>Importar captura do navegador</h3>
+        <p class="muted">Arquivo HAR (DevTools → Network → Save all as HAR) ou bundle JSON. Somente as respostas JSON do Battlelog são lidas; cabeçalhos e cookies são descartados.</p>
+        <form id="importForm" class="row wrap"><input type="file" id="importFile" accept=".har,.json" required><button>Importar</button></form>
+        <div id="connectMsg" class="msg" role="status"></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- STATS -->
+  <section id="tab-stats" class="tab">
+    <div class="section-head"><h2>Estatísticas</h2><div id="statsMeta" class="muted"></div></div>
+    <div id="statTiles" class="tiles"></div>
+    <div class="section-head"><h3>Histórico</h3><div class="row"><label class="muted"><input type="checkbox" id="historyTable"> Ver como tabela</label></div></div>
+    <div id="charts" class="charts"></div>
+    <div class="card"><h3>Outras estatísticas disponíveis</h3><p class="muted">Campos numéricos presentes na resposta e ainda não mapeados — nome original do campo.</p><div id="extraStats"></div></div>
+  </section>
+
+  <!-- DOGTAGS -->
+  <section id="tab-dogtags" class="tab">
+    <div class="section-head"><h2>Dogtags</h2><div id="dogtagMeta" class="muted"></div></div>
+    <div class="row wrap filters">
+      <input id="dtQuery" type="search" placeholder="Buscar por nome, descrição ou ID">
+      <select id="dtStatus"><option value="">Todos os estados</option><option value="UNLOCKED">Desbloqueadas</option><option value="LOCKED">Bloqueadas</option><option value="UNKNOWN">Estado desconhecido</option></select>
+      <select id="dtCategory"><option value="">Todas as categorias</option></select>
+    </div>
+    <div id="dogtagCounts" class="chips"></div>
+    <div id="dogtagTable" class="table-wrap"></div>
+  </section>
+
+  <!-- LAB -->
+  <section id="tab-lab" class="tab">
+    <div class="sim-banner" role="note"><strong>◆ SIMULATED</strong> Tudo nesta aba é aplicado apenas a uma cópia isolada de um snapshot. Nada é enviado ao Battlelog ou à EA.</div>
+    <div class="grid lab">
+      <div class="card">
+        <h2>Cenários</h2>
+        <form id="newScenario" class="row wrap"><input id="scenarioName" placeholder="Nome do cenário" maxlength="80"><button>Novo (snapshot atual)</button></form>
+        <ul id="scenarioList" class="list"></ul>
+      </div>
+      <div class="card" id="scenarioPanel"><p class="muted">Crie ou selecione um cenário.</p></div>
+    </div>
+  </section>
+
+  <!-- SYNC -->
+  <section id="tab-sync" class="tab">
+    <div class="grid two">
+      <div class="card"><h2>Estado da sincronização</h2><div id="syncStatus" class="kv"></div>
+        <div class="row"><button id="syncNow">Atualizar agora</button></div>
+        <p class="muted">A sincronização é unidirecional: Battlelog → este painel → seu site. Nada é gravado nos servidores do jogo.</p>
+        <h3>Integração com o site</h3>
+        <p class="muted">JSON público (somente dados REAIS): <code>/site/profile.json</code><br>Widget: <code>&lt;div data-blpanel-widget data-src="https://SEU-PAINEL/site/profile.json"&gt;&lt;/div&gt;&lt;script src="https://SEU-PAINEL/site/widget.js" defer&gt;&lt;/script&gt;</code></p>
+      </div>
+      <div class="card"><h2>Comparar sincronizações</h2>
+        <div class="row wrap"><select id="diffA"></select><span>→</span><select id="diffB"></select><button id="diffBtn">Comparar</button></div>
+        <div id="diffOut"></div>
+      </div>
+    </div>
+    <div class="card"><h2>Registro de sincronizações</h2><div id="runs" class="table-wrap"></div></div>
+  </section>
+
+  <!-- AUDIT -->
+  <section id="tab-audit" class="tab">
+    <div class="section-head"><h2>Histórico de operações</h2>
+      <select id="auditFilter"><option value="">Todas</option><option>READ</option><option>SYNC</option><option>SIMULATED</option><option>UNSUPPORTED</option><option>AUTHORIZED_WRITE</option><option>ADMIN</option></select></div>
+    <div id="auditTable" class="table-wrap"></div>
+  </section>
+
+  <!-- FEASIBILITY -->
+  <section id="tab-feasibility" class="tab">
+    <h2>Viabilidade de gravação</h2>
+    <p class="muted">Estado real das operações de escrita. Detalhes em <code>docs/03-viabilidade-gravacao.md</code>.</p>
+    <div id="feasibility"></div>
+    <h3>Endpoints de leitura</h3>
+    <div id="endpoints" class="table-wrap"></div>
+  </section>
+</main>
+
+<div id="login" class="overlay" hidden>
+  <form class="card login" id="loginForm">
+    <h2>Acesso administrativo</h2>
+    <p class="muted">Token gerado com <code>python -m blpanel create-token</code>.</p>
+    <input type="password" id="loginToken" placeholder="Token" autocomplete="current-password" required>
+    <button>Entrar</button>
+    <div id="loginMsg" class="msg"></div>
+  </form>
+</div>
+<div id="tooltip" class="tooltip" hidden></div>
+<script src="/static/app.js"></script>
+</body>
+</html>

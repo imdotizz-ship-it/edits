@@ -1,0 +1,8 @@
+{"_fixture_note": "SYNTHETIC test fixture - not real data",
+ "type": "success", "message": "OK",
+ "data": {"overviewStats": {
+   "kills": 1000, "deaths": 500, "kdRatio": 2.0, "score": 250000, "skill": 300,
+   "scorePerMinute": 800, "numWins": 60, "numLosses": 40, "accuracy": 15.5,
+   "timePlayed": 36000, "rank": 50, "killAssists": 200, "dogtagsTaken": 12, "vehiclesDestroyed": 7,
+   "flagCaptures": "n/a"
+ }}}

@@ -1,0 +1,12 @@
+{"_fixture_note": "SYNTHETIC test fixture - not real data",
+ "context": {"dogtags": {
+   "basic": [
+     {"id": "fx-basic-1", "name": "Fixture Basic Tag", "description": "Default tag", "unlocked": true},
+     {"id": "fx-basic-2", "name": "Fixture Locked Tag", "description": "Reach rank 99", "unlocked": false, "requirement": "Rank 99"}
+   ],
+   "advanced": [
+     {"id": "fx-adv-1", "name": "Fixture Weapon Tag", "description": "100 kills with a weapon"},
+     {"id": "fx-dev-1", "name": "Fixture DICE Tag", "description": "Given to DICE developers", "unlocked": false},
+     {"id": "fx-evt-1", "name": "Fixture Event Tag", "description": "Community event reward", "unlockedAt": "2015-01-01"}
+   ]
+ }}}
