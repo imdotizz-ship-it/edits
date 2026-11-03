@@ -23,6 +23,7 @@ from .connector import ENDPOINTS, BattlelogConnector, ConnectorError
 from .dogtags import DogtagManager
 from .modification import LabError, ModificationEngine
 from .platforms import PLATFORM_LABELS, PLATFORMS
+from .showcase import ShowcasePublisher
 from .statistics import StatisticsManager
 from .storage import Storage
 from .sync import SyncManager
@@ -48,6 +49,7 @@ class Panel:
         self.lab = ModificationEngine(self.storage, self.audit, self.writer, self.stats)
         self.sync = SyncManager(settings, self.storage, self.audit, self.connector, dogtags=self.dogtags)
         self.auth = Auth(settings)
+        self.showcase = ShowcasePublisher(settings, self.lab, self.audit)
 
 
 def _err(status: int, message: str, **extra) -> JSONResponse:
@@ -281,6 +283,27 @@ def create_app(panel: Panel, insecure_dev: bool = False) -> Starlette:
                                       str(d.get("confirmation", "")), request.state.actor)
         return JSONResponse(result, status_code=200 if result["status"] == "AUTHORIZED_WRITE" else 409)
 
+    # ---- public showcase (custom build, always labelled) ----------------------------
+    @guard("admin")
+    async def showcase_publish(request: Request):
+        d = await body(request)
+        data = panel.showcase.publish(int(request.path_params["sid"]), d.get("title"), request.state.actor)
+        return JSONResponse(data)
+
+    @guard("admin")
+    async def showcase_unpublish(request: Request):
+        return JSONResponse({"removed": panel.showcase.unpublish(request.state.actor)})
+
+    @guard("viewer")
+    async def showcase_current(request: Request):
+        return JSONResponse({"published": panel.showcase.current()})
+
+    async def site_showcase(request: Request):
+        data = panel.showcase.current()
+        if not data:
+            return _err(404, "no showcase published")
+        return JSONResponse(data, headers={"Cache-Control": "public, max-age=60"})
+
     # ---- audit -------------------------------------------------------------------
     @guard("viewer")
     async def audit(request: Request):
@@ -343,7 +366,11 @@ def create_app(panel: Panel, insecure_dev: bool = False) -> Starlette:
         Route("/api/lab/scenarios/{sid:int}/restore", lab_restore, methods=["POST"]),
         Route("/api/lab/scenarios/{sid:int}/export", lab_export),
         Route("/api/lab/scenarios/{sid:int}/apply-live", lab_apply_live, methods=["POST"]),
+        Route("/api/lab/scenarios/{sid:int}/publish", showcase_publish, methods=["POST"]),
+        Route("/api/showcase", showcase_current),
+        Route("/api/showcase/unpublish", showcase_unpublish, methods=["POST"]),
         Route("/api/audit", audit),
+        Route("/site/showcase.json", site_showcase),
         Route("/site/profile.json", site_profile),
         Route("/site/widget.js", site_widget),
         Mount("/static", StaticFiles(directory=STATIC), name="static"),

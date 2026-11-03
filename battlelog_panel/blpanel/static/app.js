@@ -297,6 +297,7 @@ function drawScenario(ev) {
       h("button", { class: "ghost", onclick: () => labCall(`/api/lab/scenarios/${sid}/restore`, {}) }, "Restaurar originais"),
       h("a", { class: "btn ghost", href: `/api/lab/scenarios/${sid}/export?format=json`, download: true }, "Exportar JSON (SIMULATED)"),
       h("a", { class: "btn ghost", href: `/api/lab/scenarios/${sid}/export?format=csv`, download: true }, "Exportar CSV (SIMULATED)"),
+      h("button", { onclick: () => publishShowcase(sid, ev) }, "Publicar no site (custom)"),
       h("button", { class: "danger", onclick: async () => { if (confirm("Excluir cenário?")) { await api(`/api/lab/scenarios/${sid}/delete`, { method: "POST" }); S.scenarioId = null; renderLab(); } } }, "Excluir"))),
     h("p", { class: "muted" }, `Base: snapshot #${ev.base_snapshot.id} (${ev.base_snapshot.source_kind}, ${fmtTime(ev.base_snapshot.captured_at)}). `, ev.watermark),
     h("h3", {}, "Editor de cenário"), addStat, addTag,
@@ -305,6 +306,14 @@ function drawScenario(ev) {
     h("h3", {}, "Before / After"), h("div", { class: "table-wrap" }, table(["Estatística", "Original", "", "Simulado", "", "Δ"], cmpRows)),
     ev.dogtag_diff.length ? h("div", {}, h("h3", {}, "Dogtags (simulação)"), table(["Dogtag", "Original", "Simulado"], ev.dogtag_diff.map((d) => [d.name, badge(d.before), h("div", {}, badge(d.after), " ", badge("SIMULATED"))]))) : null,
     h("div", { id: "liveMsg", class: "msg" })].filter(Boolean));
+}
+async function publishShowcase(sid, ev) {
+  if (!ev.modifications.length) return alert("Adicione alterações antes de publicar.");
+  const title = prompt("Título do build (aparece no site):", ev.scenario.name);
+  if (title === null) return;
+  if (!confirm("Publicar este cenário em /site/showcase.json?\n\nQualquer visitante do site verá estes números, sempre com o selo \"Build personalizado · não é estatística oficial do Battlelog\". Os dados reais (/site/profile.json) não mudam.")) return;
+  try { await api(`/api/lab/scenarios/${sid}/publish`, { method: "POST", json: { title } }); msg($("#liveMsg"), "Publicado em /site/showcase.json com o selo de build personalizado.", "ok"); }
+  catch (err) { msg($("#liveMsg"), err.message, "error"); }
 }
 async function labCall(path, json) {
   try { const ev = await api(path, { method: "POST", json }); drawScenario(ev); renderLabList(); }

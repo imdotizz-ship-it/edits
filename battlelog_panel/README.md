@@ -66,6 +66,16 @@ O seu site **lê**; o painel nunca recebe nada do site nem grava no jogo.
 
 Ou consuma o JSON diretamente: `GET /site/profile.json` (schema `blpanel.site-export/1`, com `data_classification: "REAL"`, origem, horário, SHA-256 da resposta bruta e histórico). O mesmo arquivo é gravado em `var/<env>/site_export/profile.json`, para sites estáticos que copiem o arquivo.
 
+### Build personalizado público (showcase)
+
+No *Modification Lab*, o botão **Publicar no site (custom)** grava o cenário em `/site/showcase.json`. Qualquer visitante pode ver, usando o mesmo widget:
+
+```html
+<div data-blpanel-widget data-src="https://SEU-PAINEL/site/showcase.json"></div>
+```
+
+O widget sempre mostra o selo **"Build personalizado · não é estatística oficial do Battlelog"**, marca cada número alterado como `CUSTOM` e mostra o valor real ao lado. Não há opção para esconder o selo, e o CSS do site não alcança o widget. O `/site/profile.json` (dados reais) não é alterado. Para despublicar: `POST /api/showcase/unpublish`.
+
 Para seguir a identidade visual do seu site, edite só o bloco de tokens no topo de `blpanel/static/app.css`.
 
 ## Documentação
